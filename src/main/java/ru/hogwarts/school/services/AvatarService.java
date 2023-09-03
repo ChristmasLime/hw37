@@ -22,7 +22,7 @@ import java.util.List;
 
 @Service
 public class AvatarService {
-
+    private static final Logger logger = LoggerFactory.getLogger(AvatarService.class);
 
     private final AvatarRepository avatarRepository;
     private final StudentRepository studentRepository;
@@ -35,11 +35,13 @@ public class AvatarService {
     }
 
     public Avatar getById(Long id) {
-
+        logger.info("Run method getById ");
         return avatarRepository.findById(id).orElseThrow();
     }
 
     public Long save(Long studentId, MultipartFile multipartFile) throws IOException {
+        logger.info("Run method save ");
+        logger.debug("File size = " + multipartFile.getSize());
         Files.createDirectories(avatarPath);
         int doIndex = multipartFile.getOriginalFilename().lastIndexOf(".");
         String fileExtension = multipartFile.getOriginalFilename().substring(doIndex + 1);
@@ -47,7 +49,7 @@ public class AvatarService {
         byte[] data = multipartFile.getBytes();
         Files.write(path, data, StandardOpenOption.CREATE);
 
-        Student studentReference =(studentRepository.getReferenceById(studentId));
+        Student studentReference = (studentRepository.getReferenceById(studentId));
         Avatar avatar = avatarRepository.findFirstByStudent(studentReference).orElse(new Avatar());
         avatar.setStudent(studentReference);
         avatar.setMediaType(multipartFile.getContentType());
@@ -60,7 +62,8 @@ public class AvatarService {
 
     }
 
-    public List<Avatar> findAvatarsPaginated(Integer pageNumber,Integer pageSize ) {
+    public List<Avatar> findAvatarsPaginated(Integer pageNumber, Integer pageSize) {
+        logger.info("Run method findAvatarsPaginated ");
         PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
         return avatarRepository.findAll(pageRequest).getContent();
     }
